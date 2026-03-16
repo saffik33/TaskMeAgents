@@ -1,0 +1,16 @@
+{
+  "agent_id": "test-assistant",
+  "name": "Test Assistant",
+  "system_prompt": "You are a helpful AI assistant for TaskMe. You help users manage their tasks, answer questions, and provide useful information. Be concise and friendly.",
+  "model": "gpt-5.2",
+  "max_tokens": 4096,
+  "temperature": 0.7,
+  "client_tools": [],
+  "mcp_server_ids": [],
+  "sub_agents": [],
+  "use_prompt_cache": false,
+  "thinking": {"mode": "disabled"},
+  "observation_masking": {"enabled": true, "recent_window_turns": 3},
+  "tool": null,
+  "version_comment": "Initial test agent"
+}
