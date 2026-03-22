@@ -19,6 +19,10 @@ if database_url:
     if database_url.startswith("postgresql://"):
         database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
     config.set_main_option("sqlalchemy.url", database_url)
+else:
+    # Import from app config as fallback (reads .env file + env vars)
+    from taskmeagents.config import settings
+    config.set_main_option("sqlalchemy.url", settings.database_url)
 
 database_schema = os.getenv("DATABASE_SCHEMA", "taskme_agents")
 
