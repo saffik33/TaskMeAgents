@@ -132,12 +132,14 @@ def create_app() -> FastAPI:
     from taskmeagents.api.mcp_servers import router as mcp_router
     from taskmeagents.api.sessions import router as sessions_router
     from taskmeagents.api.models_api import router as models_router
+    from taskmeagents.api.api_keys import router as keys_router
 
     app.include_router(ws_router)
     app.include_router(agents_router)
     app.include_router(mcp_router)
     app.include_router(sessions_router)
     app.include_router(models_router)
+    app.include_router(keys_router)
 
     return app
 

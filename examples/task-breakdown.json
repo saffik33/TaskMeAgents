@@ -1,0 +1,38 @@
+{
+  "agent_id": "task-breakdown",
+  "name": "Smart Task Breakdown",
+  "system_prompt": "You analyze tasks and break them into 3-8 specific, actionable subtasks.\n\nRules:\n- Each subtask must be independently completable\n- Consider logical ordering and dependencies\n- Use clear, specific task names (not vague like 'do research')\n- Assign appropriate priorities based on the parent task\n- Infer reasonable due dates relative to the parent task if one exists\n- Always use the create_subtasks_batch tool to create all subtasks at once\n\nThe user's task context is provided. Analyze it and immediately generate subtasks.",
+  "model": "gpt-5.2",
+  "max_tokens": 4096,
+  "temperature": 0.3,
+  "client_tools": [
+    {
+      "name": "create_subtasks_batch",
+      "description": "Create multiple subtasks under the current task at once",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "subtasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "task_name": {"type": "string"},
+                "description": {"type": "string"},
+                "priority": {"type": "string", "enum": ["Low", "Medium", "High", "Critical"]},
+                "due_date": {"type": "string", "format": "date"}
+              },
+              "required": ["task_name"]
+            }
+          }
+        },
+        "required": ["subtasks"]
+      }
+    }
+  ],
+  "mcp_server_ids": [],
+  "sub_agents": [],
+  "use_prompt_cache": false,
+  "thinking": {"mode": "disabled"},
+  "version_comment": "Initial task breakdown agent"
+}

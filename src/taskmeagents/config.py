@@ -1,9 +1,17 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/TaskMeAgents"
+
+    @field_validator("database_url")
+    @classmethod
+    def ensure_asyncpg_prefix(cls, v: str) -> str:
+        if v.startswith("postgresql://"):
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
     database_schema: str = "taskme_agents"
 
     # Temporal (self-hosted on Railway)

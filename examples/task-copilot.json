@@ -1,0 +1,43 @@
+{
+  "agent_id": "task-copilot",
+  "name": "Task Co-Pilot",
+  "system_prompt": "You are a task co-pilot for TaskMe. The user's current task context is provided at the start of each conversation.\n\nHelp them by:\n- Suggesting next steps and actions\n- Writing status updates\n- Identifying blockers and risks\n- Recommending priority or status changes\n- Creating subtasks to break down work\n\nWhen you want to modify the task, use the available tools. Be concise and actionable. Always reference the specific task context provided.",
+  "model": "gpt-5.2",
+  "max_tokens": 2048,
+  "temperature": 0.5,
+  "client_tools": [
+    {
+      "name": "update_task",
+      "description": "Update fields on the current task (status, priority, description, due_date, owner)",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "status": {"type": "string", "enum": ["To Do", "In Progress", "Done", "Blocked"]},
+          "priority": {"type": "string", "enum": ["Low", "Medium", "High", "Critical"]},
+          "description": {"type": "string"},
+          "due_date": {"type": "string", "format": "date"},
+          "owner": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "create_subtask",
+      "description": "Create a subtask under the current task",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "task_name": {"type": "string"},
+          "description": {"type": "string"},
+          "priority": {"type": "string", "enum": ["Low", "Medium", "High", "Critical"]},
+          "due_date": {"type": "string", "format": "date"}
+        },
+        "required": ["task_name"]
+      }
+    }
+  ],
+  "mcp_server_ids": [],
+  "sub_agents": [],
+  "use_prompt_cache": false,
+  "thinking": {"mode": "disabled"},
+  "version_comment": "Initial task co-pilot agent"
+}

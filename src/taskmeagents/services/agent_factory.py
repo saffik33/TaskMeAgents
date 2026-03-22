@@ -28,6 +28,35 @@ from taskmeagents.models.agent import Agent as AgentModel
 logger = structlog.get_logger()
 
 
+def _parse_parameter(raw: dict) -> Parameter:
+    """Parse a raw dict into a Parameter, handling nested properties."""
+    props = None
+    if "properties" in raw and isinstance(raw["properties"], dict):
+        props = {k: _parse_parameter(v) for k, v in raw["properties"].items()}
+    return Parameter(
+        type=raw.get("type", "string"),
+        description=raw.get("description", ""),
+        enum=raw.get("enum"),
+        items=raw.get("items"),
+        properties=props,
+        required=raw.get("required"),
+    )
+
+
+def _parse_parameter_schema(raw: dict) -> ParameterSchema:
+    """Parse a raw dict (OpenAI-style or internal) into a ParameterSchema."""
+    if not raw:
+        return ParameterSchema()
+    props = {}
+    if "properties" in raw and isinstance(raw["properties"], dict):
+        props = {k: _parse_parameter(v) for k, v in raw["properties"].items()}
+    return ParameterSchema(
+        type=raw.get("type", "object"),
+        properties=props,
+        required=raw.get("required", []),
+    )
+
+
 @dataclass
 class AgentInstance:
     """A cached agent with its provider and tools."""
@@ -145,11 +174,14 @@ class AgentFactory:
         client_tools = config.get("client_tools", [])
         for ct in client_tools:
             if isinstance(ct, dict):
+                # Support both "input_schema" (internal) and "parameters" (OpenAI-style) keys
+                raw_schema = ct.get("input_schema") or ct.get("parameters") or {}
+                schema = _parse_parameter_schema(raw_schema)
                 tool = Tool(
                     name=ct.get("name", ""),
                     description=ct.get("description", ""),
                     tool_type=ToolType.CLIENT,
-                    input_schema=ParameterSchema(**ct.get("input_schema", {})) if ct.get("input_schema") else ParameterSchema(),
+                    input_schema=schema,
                 )
                 all_tools.append(tool)
 

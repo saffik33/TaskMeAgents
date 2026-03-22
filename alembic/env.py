@@ -16,6 +16,8 @@ if config.config_file_name is not None:
 # Override URL from environment variable if set
 database_url = os.getenv("DATABASE_URL")
 if database_url:
+    if database_url.startswith("postgresql://"):
+        database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
     config.set_main_option("sqlalchemy.url", database_url)
 
 database_schema = os.getenv("DATABASE_SCHEMA", "taskme_agents")
@@ -59,7 +61,7 @@ async def run_async_migrations() -> None:
     )
     async with connectable.connect() as connection:
         # Create schema BEFORE alembic tries to create alembic_version table in it
-        await connection.execute(text(f"CREATE SCHEMA IF NOT EXISTS {database_schema}"))
+        await connection.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{database_schema}"'))
         await connection.commit()
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()
