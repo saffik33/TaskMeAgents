@@ -10,12 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install uv for fast dependency installation
 RUN pip install --no-cache-dir uv
 
-# Install dependencies first (layer caching)
-COPY pyproject.toml .
-RUN uv pip install --system .
-
-# Copy source code
+# Copy everything and install (package + dependencies)
 COPY . .
+RUN uv pip install --system .
 
 # Create attachment volume mount point
 RUN mkdir -p /data/attachments
