@@ -32,5 +32,13 @@ services:
       - "7233:7233"   # gRPC (Temporal server)
       - "8233:8233"   # Temporal UI
 
+  serpapi-mcp:
+    build: ./mcp_servers/serpapi-mcp
+    ports:
+      - "8080:8080"
+    environment:
+      - SERPAPI_API_KEY=${SERPAPI_API_KEY}
+    restart: unless-stopped
+
 volumes:
   pgdata:
