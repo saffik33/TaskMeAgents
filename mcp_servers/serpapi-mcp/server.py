@@ -5,7 +5,11 @@ import os
 import httpx
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("serpapi-search", stateless_http=True)
+mcp = FastMCP(
+    "serpapi-search",
+    stateless_http=True,
+    transport_security={"enable_dns_rebinding_protection": False},
+)
 
 
 @mcp.tool()
@@ -34,4 +38,4 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", "8080"))
     app = mcp.streamable_http_app()
-    uvicorn.run(app, host="0.0.0.0", port=port, server_header=False, proxy_headers=True, forwarded_allow_ips="*")
+    uvicorn.run(app, host="0.0.0.0", port=port)
