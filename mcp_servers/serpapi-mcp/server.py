@@ -31,9 +31,7 @@ async def web_search(query: str, num_results: int = 5) -> str:
 
 
 if __name__ == "__main__":
-    # Host/port configured via MCP_HOST and MCP_PORT env vars (defaults: 0.0.0.0:8000)
-    # Or via uvicorn directly for custom port
     import uvicorn
     port = int(os.environ.get("PORT", "8080"))
     app = mcp.streamable_http_app()
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port, server_header=False, proxy_headers=True, forwarded_allow_ips="*")
