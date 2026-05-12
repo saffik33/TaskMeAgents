@@ -63,7 +63,8 @@ class AssistantMessage:
 class ToolRequestMessage:
     tool_use_id: str
     tool_name: str
-    tool_type: ToolType = ToolType.SERVER
+    # str (not ToolType) so Temporal's JSON converter round-trips the value correctly
+    tool_type: str = ToolType.SERVER
     description: str = ""
     parameters: dict[str, Any] = field(default_factory=dict)
     auto_approve: bool = False
@@ -74,7 +75,8 @@ class ToolRequestMessage:
 class ToolResultMessage:
     tool_use_id: str
     tool_name: str
-    tool_type: ToolType = ToolType.SERVER
+    # str (not ToolType) so Temporal's JSON converter round-trips the value correctly
+    tool_type: str = ToolType.SERVER
     success: bool = True
     content: str = ""
     data: dict[str, Any] | None = None

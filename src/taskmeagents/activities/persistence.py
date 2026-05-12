@@ -41,7 +41,7 @@ def _message_to_doc(msg: Message, session_id: str, sequence: int) -> MessageDocu
         content = {
             "tool_use_id": msg.tool_request.tool_use_id,
             "tool_name": msg.tool_request.tool_name,
-            "tool_type": msg.tool_request.tool_type.value if msg.tool_request.tool_type else "server",
+            "tool_type": msg.tool_request.tool_type if msg.tool_request.tool_type else "server",
             "parameters": msg.tool_request.parameters,
             "auto_approve": msg.tool_request.auto_approve,
         }

@@ -9,6 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from taskmeagents.database import Base
 
+# Ensure all models are registered with Base.metadata before engine creation
+import taskmeagents.models  # noqa: F401
+
 
 # Patch PostgreSQL-specific types for SQLite compatibility
 def _adapt_schema_for_sqlite():
@@ -81,6 +84,42 @@ def _adapt_schema_for_sqlite():
 
     ARRAY.result_processor = patched_result_processor
 
+    # Monkey-patch UUID to handle strings in SQLite (no native UUID type)
+    import uuid as uuid_mod
+    original_uuid_bind = UUID.bind_processor
+
+    def patched_uuid_bind_processor(self, dialect):
+        if dialect.name == "sqlite":
+            def process(value):
+                if value is None:
+                    return None
+                if isinstance(value, uuid_mod.UUID):
+                    return str(value)
+                return str(value)
+            return process
+        if hasattr(original_uuid_bind, '__func__'):
+            return original_uuid_bind(self, dialect)
+        return None
+
+    UUID.bind_processor = patched_uuid_bind_processor
+
+    original_uuid_result = UUID.result_processor
+
+    def patched_uuid_result_processor(self, dialect, coltype):
+        if dialect.name == "sqlite":
+            def process(value):
+                if value is None:
+                    return None
+                if isinstance(value, uuid_mod.UUID):
+                    return value
+                return uuid_mod.UUID(str(value))
+            return process
+        if hasattr(original_uuid_result, '__func__'):
+            return original_uuid_result(self, dialect, coltype)
+        return None
+
+    UUID.result_processor = patched_uuid_result_processor
+
 
 _adapt_schema_for_sqlite()
 
@@ -95,7 +134,7 @@ def event_loop():
 @pytest_asyncio.fixture(scope="session")
 async def pg_engine():
     """SQLite engine with PostgreSQL type adaptations for fast integration tests."""
-    # Strip schema from metadata — SQLite doesn't support schemas
+    # Strip schema from metadata ï¿½ SQLite doesn't support schemas
     for table in list(Base.metadata.tables.values()):
         table.schema = None
 
