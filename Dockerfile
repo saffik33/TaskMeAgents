@@ -10,7 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install uv for fast dependency installation
 RUN pip install --no-cache-dir uv
 
-# Copy everything and install (package + dependencies)
+# Copy project metadata first (busts stale install cache on dependency changes)
+COPY pyproject.toml .
+# Copy source and install
 COPY . .
 RUN uv pip install --system .
 
