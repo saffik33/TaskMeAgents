@@ -250,6 +250,43 @@ class MCPRegistry:
             raise ConnectionError(f"Failed to connect to MCP server {server_name} at {url}: {e}") from e
 
 
+# --- DB loader ---
+
+
+class McpDbLoader:
+    """Loads MCP server config from the database by ID."""
+
+    def __init__(self, session_factory: Any) -> None:
+        self._session_factory = session_factory
+
+    async def load_config(self, server_id: str) -> dict[str, Any] | None:
+        from sqlalchemy import select
+
+        from taskmeagents.models.mcp_server import McpServerConfig
+
+        async with self._session_factory() as db:
+            result = await db.execute(
+                select(McpServerConfig).where(McpServerConfig.mcp_server_id == server_id)
+            )
+            row = result.scalar_one_or_none()
+            if row is None:
+                return None
+            return {
+                "mcp_server_id": str(row.mcp_server_id),
+                "name": row.name,
+                "description": row.description,
+                "host": row.host,
+                "port": row.port,
+                "path": row.path,
+                "use_tls": row.use_tls,
+                "auth_strategy": row.auth_strategy,
+                "headers": row.headers or {},
+                "auto_approve": row.auto_approve,
+                "passthrough_headers": row.passthrough_headers or [],
+                "included_tools": row.included_tools or {},
+            }
+
+
 # --- Global singleton ---
 
 _registry: MCPRegistry | None = None

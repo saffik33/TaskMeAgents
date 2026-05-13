@@ -42,8 +42,9 @@ async def lifespan(app: FastAPI):
     init_history_store(async_session_factory)
 
     # 3. Init MCP registry
-    from taskmeagents.mcp.registry import init_mcp_registry
-    init_mcp_registry()
+    from taskmeagents.mcp.registry import McpDbLoader, init_mcp_registry
+    registry = init_mcp_registry()
+    registry.set_db_loader(McpDbLoader(async_session_factory))
 
     # 4. Init agent factory
     from taskmeagents.services.agent_factory import init_agent_factory
