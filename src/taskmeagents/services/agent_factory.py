@@ -138,11 +138,23 @@ class AgentFactory:
             budget_tokens=thinking_data.get("budget_tokens", 0),
         )
 
+        litellm_url = settings.litellm_base_url.strip() or None
+        gateway_key = settings.litellm_api_key
+
         provider: Provider
         if model.provider_type == ProviderType.ANTHROPIC:
-            provider = AnthropicProvider(model, settings.anthropic_api_key, thinking)
+            provider = AnthropicProvider(
+                model,
+                gateway_key or settings.anthropic_api_key,
+                thinking,
+                base_url=(litellm_url + "/anthropic") if litellm_url else None,
+            )
         elif model.provider_type == ProviderType.OPENAI:
-            provider = OpenAIProvider(model, settings.openai_api_key)
+            provider = OpenAIProvider(
+                model,
+                gateway_key or settings.openai_api_key,
+                base_url=litellm_url,
+            )
         else:
             raise ValueError(f"Unknown provider type: {model.provider_type}")
 

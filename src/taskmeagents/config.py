@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     # LLM Providers
     anthropic_api_key: str = ""
     openai_api_key: str = ""
+    litellm_base_url: str = ""
+    litellm_api_key: str = ""
 
     # Attachments (Railway persistent volume)
     attachment_base_path: str = "/data/attachments"

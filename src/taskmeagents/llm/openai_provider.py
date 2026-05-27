@@ -35,9 +35,12 @@ from taskmeagents.llm.provider import (
 
 
 class OpenAIProvider(Provider):
-    def __init__(self, model: Model, api_key: str):
+    def __init__(self, model: Model, api_key: str, base_url: str | None = None):
         self._model = model
-        self._client = openai.AsyncOpenAI(api_key=api_key)
+        kwargs: dict = {"api_key": api_key}
+        if base_url:
+            kwargs["base_url"] = base_url.strip()
+        self._client = openai.AsyncOpenAI(**kwargs)
 
     def get_model(self) -> Model:
         return self._model

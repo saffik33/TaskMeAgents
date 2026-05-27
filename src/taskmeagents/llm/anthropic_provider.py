@@ -36,10 +36,13 @@ from taskmeagents.llm.thinking import ThinkingConfig, ThinkingMode
 
 
 class AnthropicProvider(Provider):
-    def __init__(self, model: Model, api_key: str, thinking: ThinkingConfig | None = None):
+    def __init__(self, model: Model, api_key: str, thinking: ThinkingConfig | None = None, base_url: str | None = None):
         self._model = model
         self._thinking = thinking or ThinkingConfig()
-        self._client = anthropic.AsyncAnthropic(api_key=api_key)
+        kwargs: dict = {"api_key": api_key}
+        if base_url:
+            kwargs["base_url"] = base_url.strip()
+        self._client = anthropic.AsyncAnthropic(**kwargs)
 
     def get_model(self) -> Model:
         return self._model
